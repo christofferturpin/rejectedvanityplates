@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Vanity Plates</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: #121826; /* Deep navy */
+            color: #E3EAF2; /* Cool gray-blue */
+        }
+
+
+        h1 {
+            font-size: 3.5em;
+            margin: 5px 0 5px; /* Tight spacing */
+			font: #FFFFFF;
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #4DA8DA;
+            margin: 0 0 15px;
+        }
+
+		h3 {
+			font-size: 1em;
+		}
+
+        .container {
+            padding: 20px;
+            border: 1px solid #3B4F63;
+            display: inline-block;
+            background: #1A2332;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.5;
+            color: #C0D1E8;
+        }
+
+        .footer {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px 30px;
+            background: #181F2C;
+            border-radius: 6px;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.4);
+            font-size: 1em;
+            text-align: left;
+            color: #C0D1E8;
+        }
+
+        .footer p {
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+            }
+
+            .footer {
+                width: 90%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <h1><b>Real</b></h1>
+    <h2>Vanity Plate Applications</h2>
+	<h3><i>Maybe (probably) NSFW</i></h3>
+	<p>Looking for an AWS Dev? Hire <a href="https://christofferturpin.com/publicFiles/resume.pdf" style="color: #4DA8DA;">Chris Turpin.</a></p>
+
+
+    <div class="container">
+        <p><strong>The Plate Said:</strong> <span id="plate">Loading...</span></p>
+        <p><strong>Customer Says It Means:</strong> <span id="customer_meaning">Loading...</span></p>
+        <p><strong>The DMV Reviewer Said:</strong> <span id="reviewer_comments">Loading...</span></p>
+        <p><strong>Approved?:</strong> <span id="status">Loading...</span></p>
+    </div>
+
+    <div class="footer">
+        <p><b>Refresh the Page For Another Plate</b></p>
+        <p>This site hosts a database of real California vanity plate applications from 2015–2016, including the applicant’s reasoning and a DMV reviewer’s comments. Each plate was either approved or rejected, offering a glimpse into what people tried to put on their cars and how the DMV ruled on them.</p>
+        <p>The custom RESTful API powering the site runs on AWS, leveraging S3 for storage/hosting, Lambda for processing, API Gateway for request handling, CloudFront for HTTPS, and WAF for throttling the API. You can call it if you want (max five calls per second), but there’s really no reason to—it just serves up this weird little slice of bureaucratic decision-making at scale.</p>
+        <p><b>Call the API:</b> GET @ https://fqu0j94n59.execute-api.us-east-2.amazonaws.com/Running
+    </div>
+
+    <script>
+        const API_URL = "https://fqu0j94n59.execute-api.us-east-2.amazonaws.com/Running";
+
+        function fetchNewPlate() {
+            console.log("Fetching new plate from API...");
+            
+            fetch(API_URL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(apiResponse => {
+                    console.log("Raw API Response:", apiResponse);
+
+                    // Parse the "body" field as JSON
+                    const data = JSON.parse(apiResponse.body);
+
+                    console.log("Parsed Data:", data);  // Debug log to confirm data
+
+                    displayPlate({
+                        plate: data.plate || "N/A",
+                        customer_meaning: data.customer_meaning || "N/A",
+                        reviewer_comments: data.reviewer_comments || "N/A",
+                        status: data.status || "N/A"
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById("plate").textContent = "Error fetching plate.";
+                });
+        }
+
+        function displayPlate(data) {
+            document.getElementById("plate").textContent = data.plate;
+            document.getElementById("customer_meaning").textContent = data.customer_meaning;
+            document.getElementById("reviewer_comments").textContent = data.reviewer_comments;
+            document.getElementById("status").textContent = data.status;
+        }
+
+        // Get a new plate every time the page is loaded
+        fetchNewPlate();
+    </script>
+
+</body>
+</html>
